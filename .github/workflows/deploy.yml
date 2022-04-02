@@ -35,4 +35,3 @@ jobs:
           stack-name: 'fckffln-main'
           stack-definition: 'stack-definition.yml'
           template-variables: '{"username": "MrCool"}'
-          image: ${{ env.DOCKER_IMAGE_URI }}:${{ env.IMAGE_TAG }
