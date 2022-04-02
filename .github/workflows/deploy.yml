@@ -11,20 +11,10 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    env:
-      GITHUB_REF: ${{ github.ref }}
-      DOCKER_REGISTRY: ghcr.io
-      DOCKER_IMAGE: github-username/my-awesome-web-app
-
     steps:
       - uses: actions/checkout@v3
       - name: Build the Docker image
-        run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
-
-      - name: Creating envs
-        run: |
-          echo "IMAGE_TAG=sha-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-          echo "DOCKER_IMAGE_URI=${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE }}" >> $GITHUB_ENV
+        run: docker build . --file Dockerfile --tag main-app:$(date +%s)
 
       - name: Deploy stack to Portainer
         uses: kgierke/portainer-stack-deployment@v1
@@ -35,4 +25,4 @@ jobs:
           portainer-endpoint: 2
           name: fckffln-main
           file: stack-definition.yml
-          variables: '{"image": "hello-world"}'
+          variables: '{"image": "main-app:$(date +%s)"}'
