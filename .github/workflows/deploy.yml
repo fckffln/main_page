@@ -7,14 +7,36 @@ on:
 
 jobs:
 
-  build:
+  deploy:
 
     runs-on: ubuntu-latest
+
+    env:
+      GITHUB_REF: ${{ github.ref }}
+      DOCKER_REGISTRY: ghcr.io
+      DOCKER_IMAGE: github-username/my-awesome-web-app
 
     steps:
       - uses: actions/checkout@v3
       - name: Build the Docker image
         run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+
+      - name: Creating envs
+        run: |
+          echo "IMAGE_TAG=sha-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+          echo "DOCKER_IMAGE_URI=${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_IMAGE }}" >> $GITHUB_ENV
+
+      - name: Deploy stack to Portainer
+        uses: carlrygart/portainer-stack-deploy@v1
+        with:
+          portainer-host: ${{ secrets.PORTAINER_HOST }}
+          username: ${{ secrets.PORTAINER_USERNAME }}
+          password: ${{ secrets.PORTAINER_PASSWORD }}
+          stack-name: 'fckffln-main'
+          stack-definition: 'stack-definition.yml'
+          template-variables: '{"username": "MrCool"}'
+          image: ${{ env.DOCKER_IMAGE_URI }}:${{ env.IMAGE_TAG }
+
       - name: Deploy to portainer
         uses: LGinC/portainer-stack-deploy@master
         with:
@@ -37,4 +59,3 @@ jobs:
                 build: ./
                 ports:
                   - 2222:80
-

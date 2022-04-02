@@ -1,0 +1,6 @@
+version: '3.7'
+services:
+  main:
+    build: .github/workflows
+    ports:
+      - 2222:80
