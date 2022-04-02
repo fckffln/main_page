@@ -1,0 +1,40 @@
+name: deploy
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build the Docker image
+        run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      - name: Deploy to portainer
+        uses: LGinC/portainer-stack-deploy@master
+        with:
+          serverurl: ${{ secrets.PORTAINER_HOST }}
+          username: ${{ secrets.PORTAINER_USERNAME }}
+          password: ${{ secrets.PORTAINER_PASSWORD }}
+          endpointId: 1
+          stackname: fckffln
+          imagenames: |
+            fckffln/main
+          variables: |
+            tag=6.0-alpine
+          env: |
+            TZ=Asia/Shanghai
+            myTag=App
+          docker_compose: |
+            version: '3'
+            services:
+              main:
+                build: ./
+                ports:
+                  - 2222:80
+
